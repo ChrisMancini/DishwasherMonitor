@@ -81,6 +81,8 @@ namespace Shared
                     IsOpened = isOpened
                 });
 
+                conn.Table<DishwasherTiltEvent>().Delete(x => x.TiltTime < DateTime.Now.Subtract(new TimeSpan(7, 0, 0, 0)));
+
                 conn.Commit();
             }
         }
@@ -105,6 +107,8 @@ namespace Shared
                     StartDateTime = info.CurrentRunStart,
                     EndDateTime = now
                 });
+
+                conn.Table<DishwasherRun>().Delete(x => x.StartDateTime < DateTime.Now.Subtract(new TimeSpan(14, 0, 0, 0)));
 
                 conn.Commit();
             }
