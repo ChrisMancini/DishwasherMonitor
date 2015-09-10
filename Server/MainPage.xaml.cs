@@ -25,6 +25,18 @@ namespace Server
         public MainPage()
         {
             this.InitializeComponent();
+
+            this.Loaded += OnLoaded;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            HttpServer server = new RestAPI(80);
+            IAsyncAction asyncAction = Windows.System.Threading.ThreadPool.RunAsync(
+                (workItem) =>
+                {
+                    server.StartServer();
+                });
         }
     }
 }
