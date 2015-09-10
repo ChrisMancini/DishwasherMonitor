@@ -68,7 +68,6 @@ namespace Monitor
 
         private void ValueChangedHandler(GpioPin sender, GpioPinValueChangedEventArgs args)
         {
-            //throw new NotImplementedException();
             Debug.WriteLine("Pin {0} changed to {1}", sender.PinNumber, sender.Read());
         }
     }

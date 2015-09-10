@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.System;
 using SQLite.Net;
 using SQLite.Net.Interop;
 using SQLite.Net.Platform.WinRT;
@@ -22,13 +18,30 @@ namespace Shared
                     new SQLiteConnection(new SQLitePlatformWinRT(), _path, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite))
             {
                 CreateTableIfNeeded<DishwasherRun>(conn);
+                CreateTableIfNeeded<DishwasherTiltEvent>(conn);
                 conn.Commit();
             }
         }
 
         readonly string _path;
 
-        public void AddDishwasherRunStart(DateTime start)
+        public void DishwasherTilt(bool isOpened)
+        {
+            using (
+                var conn =
+                    new SQLiteConnection(new SQLitePlatformWinRT(), _path))
+            {
+                conn.Insert(new DishwasherTiltEvent
+                {
+                    TiltTime = DateTime.Now,
+                    IsOpened = isOpened
+                });
+
+                conn.Commit();
+            }
+        }
+
+        public void AddDishwasherRunStart()
         {
             using (
                 var conn =
@@ -36,14 +49,14 @@ namespace Shared
             {
                 conn.Insert(new DishwasherRun
                 {
-                    StartDateTime = start
+                    StartDateTime = DateTime.Now
                 });
 
                 conn.Commit();
             }
         }
 
-        public void EndDishwasherRun(DateTime end)
+        public void EndDishwasherRun()
         {
             using (
                 var conn =
@@ -54,7 +67,7 @@ namespace Shared
 
                 if (result != null)
                 {
-                    result.EndDateTime = end;
+                    result.EndDateTime = DateTime.Now;
                     conn.Update(result);
                     conn.Commit();
                 }

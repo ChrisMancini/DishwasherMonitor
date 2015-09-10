@@ -114,6 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DishwasherRun.cs" />
+    <Compile Include="DishwasherTiltEvent.cs" />
     <Compile Include="SqlHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Properties\Shared.rd.xml" />

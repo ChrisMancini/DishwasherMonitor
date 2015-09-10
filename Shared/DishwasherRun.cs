@@ -7,6 +7,7 @@ namespace Shared
     {
         public DateTime StartDateTime { get; set; }
         public DateTime EndDateTime { get; set; }
+
         [PrimaryKey]
         public int? Id { get; set; }
 
@@ -19,6 +20,9 @@ namespace Shared
 
     public class DishwasherInfo
     {
-        
+        [PrimaryKey]
+        public int? Id { get; set; }
+
+
     }
 }
