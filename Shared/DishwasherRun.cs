@@ -17,12 +17,4 @@ namespace Shared
             EndDateTime = DateTime.MinValue;
         }
     }
-
-    public class DishwasherInfo
-    {
-        [PrimaryKey]
-        public int? Id { get; set; }
-
-
-    }
 }

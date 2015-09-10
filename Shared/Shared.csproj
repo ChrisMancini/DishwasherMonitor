@@ -113,7 +113,9 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DishwasherInfo.cs" />
     <Compile Include="DishwasherRun.cs" />
+    <Compile Include="DishwasherStatus.cs" />
     <Compile Include="DishwasherTiltEvent.cs" />
     <Compile Include="SqlHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
