@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -26,7 +27,7 @@ namespace Shared
 
         readonly string _path;
 
-        public void EditDishwasherInfo(bool setClean, bool setDirty, DishwasherStatus? setStatus)
+        private void EditDishwasherInfo(DishwasherStatus setStatus)
         {
             using (
                 var conn =
@@ -35,14 +36,22 @@ namespace Shared
                 var result =
                     conn.Get<DishwasherInfo>(x => x.Id != null);
 
-                if (result != null)
+                if (result != null && result.CurrentStatus != setStatus)
                 {
-                    if (setClean)
-                        result.CleanDateTime = DateTime.Now;
-                    else if (setDirty)
-                        result.DirtyDateTime = DateTime.Now;
-                    else if (setStatus.HasValue)
-                        result.CurrentStatus = setStatus.Value;
+                    switch (setStatus)
+                    {
+                        case DishwasherStatus.Clean:
+                            result.CleanDateTime = DateTime.Now;
+                            break;
+                        case DishwasherStatus.Dirty:
+                            result.DirtyDateTime = DateTime.Now;
+                            break;
+                        case DishwasherStatus.Running:
+                            result.CurrentRunStart = DateTime.Now;
+                            break;
+                    }
+                  
+                    result.CurrentStatus = setStatus;
                     conn.Update(result);
                     conn.Commit();
                 }
@@ -50,6 +59,7 @@ namespace Shared
                 {
                     conn.Insert(new DishwasherInfo
                     {
+                        CurrentRunStart = DateTime.MinValue,
                         CleanDateTime = DateTime.MinValue,
                         DirtyDateTime = DateTime.Now,
                         CurrentStatus = DishwasherStatus.Dirty
@@ -75,19 +85,9 @@ namespace Shared
             }
         }
 
-        public void AddDishwasherRunStart()
+        public void StartDishwasherRun()
         {
-            using (
-                var conn =
-                    new SQLiteConnection(new SQLitePlatformWinRT(), _path))
-            {
-                conn.Insert(new DishwasherRun
-                {
-                    StartDateTime = DateTime.Now
-                });
-
-                conn.Commit();
-            }
+            EditDishwasherInfo(DishwasherStatus.Running);
         }
 
         public void EndDishwasherRun()
@@ -96,16 +96,25 @@ namespace Shared
                 var conn =
                     new SQLiteConnection(new SQLitePlatformWinRT(), _path))
             {
-                var result =
-                    conn.Table<DishwasherRun>().Where(x => x.EndDateTime == DateTime.MinValue).OrderByDescending(x => x.StartDateTime).First();
+                var now = DateTime.Now;
+                var info = conn.Get<DishwasherInfo>(x => x.Id != null);
+                if (info == null) return;
 
-                if (result != null)
+                conn.Insert(new DishwasherRun
                 {
-                    result.EndDateTime = DateTime.Now;
-                    conn.Update(result);
-                    conn.Commit();
-                }
+                    StartDateTime = info.CurrentRunStart,
+                    EndDateTime = now
+                });
+
+                conn.Commit();
             }
+
+            EditDishwasherInfo(DishwasherStatus.Clean);
+        }
+
+        public void DishwasherEmptied()
+        {
+            EditDishwasherInfo(DishwasherStatus.Dirty);
         }
 
         private static void CreateTableIfNeeded<T>(SQLiteConnection conn) where T :class
