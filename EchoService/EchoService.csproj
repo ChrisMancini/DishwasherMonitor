@@ -16,7 +16,7 @@
     <RootNamespace>EchoService</RootNamespace>
     <AssemblyName>EchoService</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -111,7 +111,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Default.html" />
+    <Content Include="Default.htm" />
     <Content Include="DishwasherUtterances.txt" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
@@ -166,7 +166,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>61791</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:61791/</IISUrl>
+          <IISUrl>http://localhost/EchoService</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

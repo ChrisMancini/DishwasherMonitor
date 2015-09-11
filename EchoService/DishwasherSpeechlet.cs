@@ -5,7 +5,10 @@ using AlexaSkillsKit.Speechlet;
 using AlexaSkillsKit.Slu;
 using AlexaSkillsKit.UI;
 using Humanizer;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RestSharp;
+using RestSharp.Deserializers;
 using Shared;
 
 namespace EchoService
@@ -66,11 +69,12 @@ namespace EchoService
          * 
          * @return SpeechletResponse spoken and visual welcome message
          */
+
         private SpeechletResponse GetWelcomeResponse()
         {
             // Create the welcome message.
             string speechOutput =
-                "Welcome to the Alexa AppKit session sample app, please tell me your name by saying, my name is Sam";
+                "Welcome to the Unidesk Dishwasher, feel free to ask me what I am doing";
 
             // Here we are setting shouldEndSession to false to not end the session and
             // prompt the user for input
@@ -86,6 +90,7 @@ namespace EchoService
          *            intent for the request
          * @return SpeechletResponse spoken and visual response the given intent
          */
+
         private SpeechletResponse SetNameInSessionAndSayHello(Intent intent, Session session)
         {
             // Get the slots from the intent.
@@ -126,7 +131,9 @@ namespace EchoService
             {
                 var statusResponse = GetStatusResponse();
 
-                var status = Enum.Parse(typeof(DishwasherStatus), statusResponse.Status) is DishwasherStatus ? (DishwasherStatus)Enum.Parse(typeof(DishwasherStatus), statusResponse.Status) : DishwasherStatus.Clean;
+                var status = Enum.Parse(typeof(DishwasherStatus), statusResponse.Status) is DishwasherStatus
+                    ? (DishwasherStatus)Enum.Parse(typeof(DishwasherStatus), statusResponse.Status)
+                    : DishwasherStatus.Clean;
 
                 if (statusSlot.Value == "running")
                 {
@@ -196,7 +203,9 @@ namespace EchoService
 
             if (statusResponse != null)
             {
-                var status = Enum.Parse(typeof (DishwasherStatus), statusResponse.Status) is DishwasherStatus ? (DishwasherStatus) Enum.Parse(typeof (DishwasherStatus), statusResponse.Status) : DishwasherStatus.Clean;
+                var status = Enum.Parse(typeof(DishwasherStatus), statusResponse.Status) is DishwasherStatus
+                    ? (DishwasherStatus)Enum.Parse(typeof(DishwasherStatus), statusResponse.Status)
+                    : DishwasherStatus.Clean;
 
                 switch (status)
                 {
@@ -204,7 +213,7 @@ namespace EchoService
                         var cleanStatusDetails = statusResponse.Details as StatusResponse.CleanStatusDetails;
 
                         var cleanTimeSpan = DateTime.Now - cleanStatusDetails.DishwasherRun.EndDateTime;
-                        
+
                         speechOutput =
                             $"I am clean and have been for {cleanTimeSpan.Humanize()}, please get somebody to empty me";
                         break;
@@ -231,7 +240,10 @@ namespace EchoService
 
         private static StatusResponse GetStatusResponse()
         {
-            var restResponse = new RestClient("http://10.170.142.9/api/status").Get<StatusResponse>(new RestRequest());
+            var restClient = new RestClient("http://10.170.142.9/api/status");
+            restClient.AddHandler("application/json", new RestSharpJsonNetDeserializer());
+            var restResponse = restClient.Get<StatusResponse>(new RestRequest());
+
 
             var statusResponse = restResponse.Data;
             return statusResponse;
@@ -244,6 +256,7 @@ namespace EchoService
          *            intent for the request
          * @return SpeechletResponse spoken and visual response for the intent
          */
+
         private SpeechletResponse GetNameFromSessionAndSayHello(Intent intent, Session session)
         {
             string speechOutput = "";
@@ -255,7 +268,7 @@ namespace EchoService
             // Check to make sure user's name is set in the session.
             if (!String.IsNullOrEmpty(name))
             {
-                speechOutput = String.Format("Your name is {0}, goodbye", name);
+                speechOutput = $"Your name is {name}, goodbye";
                 shouldEndSession = true;
             }
             else
@@ -279,24 +292,90 @@ namespace EchoService
          *            should the session be closed
          * @return SpeechletResponse spoken and visual response for the given input
          */
+
         private SpeechletResponse BuildSpeechletResponse(string title, string output, bool shouldEndSession)
         {
             // Create the Simple card content.
-            SimpleCard card = new SimpleCard();
-            card.Title = String.Format("SessionSpeechlet - {0}", title);
-            card.Subtitle = String.Format("SessionSpeechlet - Sub Title");
-            card.Content = String.Format("SessionSpeechlet - {0}", output);
+            var card = new SimpleCard
+            {
+                Title = "Unidesk Dishwasher",
+                //Subtitle = "Unidesk Dishwasher - Sub Title",
+                Content = $"Unidesk Diskwasher - {output}"
+            };
 
             // Create the plain text output.
-            PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
-            speech.Text = output;
+            var speech = new PlainTextOutputSpeech {Text = output};
 
             // Create the speechlet response.
-            SpeechletResponse response = new SpeechletResponse();
-            response.ShouldEndSession = shouldEndSession;
-            response.OutputSpeech = speech;
-            response.Card = card;
+            var response = new SpeechletResponse
+            {
+                ShouldEndSession = shouldEndSession,
+                OutputSpeech = speech,
+                Card = card
+            };
+
             return response;
         }
     }
+
+    public class RestSharpJsonNetDeserializer : IDeserializer
+    {
+        public T Deserialize<T>(IRestResponse response)
+        {
+            return JsonConvert.DeserializeObject<T>(
+                response.Content,
+                new StatusDetailsConverter());
+        }
+
+        public string RootElement { get; set; }
+        public string Namespace { get; set; }
+        public string DateFormat { get; set; }
+    }
+
+
+    public abstract class JsonCreationConverter<T> : JsonConverter
+    {
+        protected abstract T Create(Type objectType, JObject jsonObject);
+
+        public override bool CanConvert(Type objectType)
+        {
+            return typeof(T).IsAssignableFrom(objectType);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType,
+          object existingValue, JsonSerializer serializer)
+        {
+            var jsonObject = JObject.Load(reader);
+            var target = Create(objectType, jsonObject);
+            serializer.Populate(jsonObject.CreateReader(), target);
+            return target;
+        }
+    }
+
+    public class StatusDetailsConverter : JsonCreationConverter<StatusResponse.StatusDetails>
+    {
+        protected override StatusResponse.StatusDetails Create(Type objectType, JObject jsonObject)
+        {
+            var typeName = jsonObject["__type"].ToString();
+
+            switch (typeName)
+            {
+                case "StatusResponse.CleanStatusDetails:#Server":
+                    return new StatusResponse.CleanStatusDetails();
+                case "StatusResponse.DirtyStatusDetails:#Server":
+                    return new StatusResponse.DirtyStatusDetails();
+                case "StatusResponse.RunningStatusDetails:#Server":
+                    return new StatusResponse.RunningStatusDetails();
+            }
+
+            return new StatusResponse.StatusDetails();
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
 }

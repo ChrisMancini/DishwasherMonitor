@@ -1,8 +1,10 @@
-﻿StatusIntent for it's status
-StatusIntent about it's status
-SpecificStatusQueryIntent if it's {running|status}
+﻿StatusIntent for its status
+StatusIntent about its status
+StatusIntent what is it doing?
+StatusIntent what it is doing.
+SpecificStatusQueryIntent if its {running|status}
 SpecificStatusQueryIntent if it is {running|status}
-SpecificStatusQueryIntent if it's {clean|status}
+SpecificStatusQueryIntent if its {clean|status}
 SpecificStatusQueryIntent if it is {clean|status}
-SpecificStatusQueryIntent if it's {dirty|status}
+SpecificStatusQueryIntent if its {dirty|status}
 SpecificStatusQueryIntent if it is {dirty|status}
