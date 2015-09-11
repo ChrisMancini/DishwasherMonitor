@@ -7,6 +7,7 @@ namespace Shared
     {
         public DateTime StartDateTime { get; set; }
         public DateTime EndDateTime { get; set; }
+        public RunCycle CycleType { get; set; }
 
         [PrimaryKey]
         public int? Id { get; set; }
@@ -15,6 +16,7 @@ namespace Shared
         {
             StartDateTime = DateTime.MinValue;
             EndDateTime = DateTime.MinValue;
+            CycleType = RunCycle.Normal;
         }
     }
 }

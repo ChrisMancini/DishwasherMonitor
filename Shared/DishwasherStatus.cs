@@ -6,4 +6,11 @@
         Running,
         Dirty
     };
+
+    public enum RunCycle
+    {
+        Normal,
+        Heavy,
+        Sanitize
+    };
 }

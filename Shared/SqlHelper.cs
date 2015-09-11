@@ -13,7 +13,7 @@ namespace Shared
     {
         public SqlHelper()
         {
-            _path = Path.Combine(Path.GetTempPath(), "dishwasher.db");
+            _path = Path.Combine(Path.GetTempPath(), "dishwasherdb.db");
             using (
                 var conn =
                     new SQLiteConnection(new SQLitePlatformWinRT(), _path, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite))
@@ -27,7 +27,7 @@ namespace Shared
 
         readonly string _path;
 
-        private void EditDishwasherInfo(DishwasherStatus setStatus)
+        private void EditDishwasherInfo(DishwasherStatus setStatus, RunCycle? runCycle)
         {
             using (
                 var conn =
@@ -48,9 +48,12 @@ namespace Shared
                             break;
                         case DishwasherStatus.Running:
                             result.CurrentRunStart = DateTime.Now;
+                            result.CurrentCycle = runCycle ?? RunCycle.Normal;
                             break;
                     }
                   
+                   
+
                     result.CurrentStatus = setStatus;
                     conn.Update(result);
                     conn.Commit();
@@ -87,9 +90,9 @@ namespace Shared
             }
         }
 
-        public void StartDishwasherRun()
+        public void StartDishwasherRun(RunCycle? cycleType)
         {
-            EditDishwasherInfo(DishwasherStatus.Running);
+            EditDishwasherInfo(DishwasherStatus.Running, cycleType);
         }
 
         public void EndDishwasherRun()
@@ -105,7 +108,8 @@ namespace Shared
                 conn.Insert(new DishwasherRun
                 {
                     StartDateTime = info.CurrentRunStart,
-                    EndDateTime = now
+                    EndDateTime = now,
+                    CycleType = info.CurrentCycle
                 });
 
                 conn.Table<DishwasherRun>().Delete(x => x.StartDateTime < DateTime.Now.Subtract(new TimeSpan(14, 0, 0, 0)));
@@ -113,12 +117,12 @@ namespace Shared
                 conn.Commit();
             }
 
-            EditDishwasherInfo(DishwasherStatus.Clean);
+            EditDishwasherInfo(DishwasherStatus.Clean, null);
         }
 
         public void DishwasherEmptied()
         {
-            EditDishwasherInfo(DishwasherStatus.Dirty);
+            EditDishwasherInfo(DishwasherStatus.Dirty, null);
         }
 
         private static void CreateTableIfNeeded<T>(SQLiteConnection conn) where T :class

@@ -11,6 +11,8 @@ namespace Shared
         public DateTime CleanDateTime { get; set; }
         public DateTime DirtyDateTime { get; set; }
         public DateTime CurrentRunStart { get; set; }
+
         public DishwasherStatus CurrentStatus { get; set; }
+        public RunCycle CurrentCycle { get; set; }
     }
 }
