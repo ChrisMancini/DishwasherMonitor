@@ -6,16 +6,16 @@
 <head runat="server">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%: Page.Title %> - Unidesk Dishwasher Team</title>
+    <title>Unidesk Dishwasher</title>
 
     <asp:PlaceHolder runat="server">
         <%: Scripts.Render("~/bundles/modernizr") %>
     </asp:PlaceHolder>
     <webopt:bundlereference runat="server" path="~/Content/css" />
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
-
+    <meta http-equiv="refresh" content="600">
 </head>
-<body>
+<body onload="setTimeout('location.reload(true);', 60000);">
     <form runat="server">
         <asp:ScriptManager runat="server">
             <Scripts>
