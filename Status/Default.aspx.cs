@@ -29,6 +29,11 @@ namespace Status
         protected void Page_Load(object sender, EventArgs e)
         {
             StatusResponse = GetStatusResponse();
+            if (StatusResponse == null)
+            {
+                return;
+            }
+
             var dets = StatusResponse.Details;
 
             if (dets is StatusResponse.DirtyStatusDetails)
@@ -116,7 +121,7 @@ namespace Status
                     return new StatusResponse.RunningStatusDetails();
             }
 
-            return new StatusResponse.StatusDetails();
+            return new StatusResponse.CleanStatusDetails();
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)

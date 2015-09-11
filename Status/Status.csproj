@@ -16,7 +16,7 @@
     <RootNamespace>Status</RootNamespace>
     <AssemblyName>Status</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -455,7 +455,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>55356</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:55356/</IISUrl>
+          <IISUrl>http://localhost/Status</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
