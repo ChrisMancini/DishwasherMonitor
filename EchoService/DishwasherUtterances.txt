@@ -1,7 +1,7 @@
 ﻿StatusIntent for its status
 StatusIntent about its status
-StatusIntent what is it doing?
-StatusIntent what it is doing.
+StatusIntent what is it doing
+StatusIntent what it is doing
 SpecificStatusQueryIntent if its {running|status}
 SpecificStatusQueryIntent if it is {running|status}
 SpecificStatusQueryIntent if its {clean|status}

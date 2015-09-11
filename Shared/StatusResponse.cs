@@ -15,11 +15,16 @@ namespace Shared
         [KnownType(typeof(RunningStatusDetails))]
         [KnownType(typeof(DirtyStatusDetails))]
         [KnownType(typeof(CleanStatusDetails))]
+        [KnownType(typeof(UnknownStatusDetails))]
         public abstract class StatusDetails
         {
             
         }
 
+        public class UnknownStatusDetails : StatusDetails
+        {
+            
+        }
         public class RunningStatusDetails : StatusDetails
         {
             [DataMember]

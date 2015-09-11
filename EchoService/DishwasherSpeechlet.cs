@@ -74,7 +74,7 @@ namespace EchoService
         {
             // Create the welcome message.
             string speechOutput =
-                "Welcome to the Unidesk Dishwasher, feel free to ask me what I am doing";
+                "Welcome to the Ukneedesk Dishwasher, feel free to ask me what I am doing";
 
             // Here we are setting shouldEndSession to false to not end the session and
             // prompt the user for input
@@ -141,8 +141,8 @@ namespace EchoService
                     {
                         var runningStatusDetails = statusResponse.Details as StatusResponse.RunningStatusDetails;
 
-                        var runningTimeSpan = DateTime.Now - runningStatusDetails.StartTime;
-                        var estimatedTimeLeft = runningStatusDetails.EstimatedEndTime - DateTime.Now;
+                        var runningTimeSpan = DateTime.UtcNow - runningStatusDetails.StartTime;
+                        var estimatedTimeLeft = runningStatusDetails.EstimatedEndTime - DateTime.UtcNow;
 
                         speechOutput =
                             $"Actually I am, and I have been for {runningTimeSpan.Humanize()}.  I expect to be clean in {estimatedTimeLeft.Humanize()}";
@@ -160,7 +160,7 @@ namespace EchoService
                     {
                         var cleanStatusDetails = statusResponse.Details as StatusResponse.CleanStatusDetails;
 
-                        var cleanTimeSpan = DateTime.Now - cleanStatusDetails.DishwasherRun.EndDateTime;
+                        var cleanTimeSpan = DateTime.UtcNow - cleanStatusDetails.DishwasherRun.EndDateTime;
 
                         speechOutput =
                             $"Please empty me!  I have been clean for  {cleanTimeSpan.Humanize()}.";
@@ -176,7 +176,7 @@ namespace EchoService
                     {
                         var dirtyStatusDetails = statusResponse.Details as StatusResponse.DirtyStatusDetails;
 
-                        var dirtyTimeSpan = DateTime.Now - dirtyStatusDetails.DirtyTime;
+                        var dirtyTimeSpan = DateTime.UtcNow - dirtyStatusDetails.DirtyTime;
 
                         speechOutput =
                             $"Yes, I am dirty.";
@@ -212,7 +212,7 @@ namespace EchoService
                     case DishwasherStatus.Clean:
                         var cleanStatusDetails = statusResponse.Details as StatusResponse.CleanStatusDetails;
 
-                        var cleanTimeSpan = DateTime.Now - cleanStatusDetails.DishwasherRun.EndDateTime;
+                        var cleanTimeSpan = DateTime.UtcNow - cleanStatusDetails.DishwasherRun.EndDateTime;
 
                         speechOutput =
                             $"I am clean and have been for {cleanTimeSpan.Humanize()}, please get somebody to empty me";
@@ -220,13 +220,13 @@ namespace EchoService
                     case DishwasherStatus.Running:
                         var runningStatusDetails = statusResponse.Details as StatusResponse.RunningStatusDetails;
 
-                        var runningTimeSpan = DateTime.Now - runningStatusDetails.StartTime;
+                        var runningTimeSpan = DateTime.UtcNow - runningStatusDetails.StartTime;
                         speechOutput = $"I have been running for {runningTimeSpan.Humanize()}.";
                         break;
                     case DishwasherStatus.Dirty:
                         var dirtyStatusDetails = statusResponse.Details as StatusResponse.DirtyStatusDetails;
 
-                        var dirtyTimeSpan = DateTime.Now - dirtyStatusDetails.DirtyTime;
+                        var dirtyTimeSpan = DateTime.UtcNow - dirtyStatusDetails.DirtyTime;
                         speechOutput = $"I have been dirty for {dirtyTimeSpan.Humanize()}.";
                         break;
                     default:
@@ -360,15 +360,15 @@ namespace EchoService
 
             switch (typeName)
             {
-                case "StatusResponse.CleanStatusDetails:#Server":
+                case "StatusResponse.CleanStatusDetails:#Shared":
                     return new StatusResponse.CleanStatusDetails();
-                case "StatusResponse.DirtyStatusDetails:#Server":
+                case "StatusResponse.DirtyStatusDetails:#Shared":
                     return new StatusResponse.DirtyStatusDetails();
-                case "StatusResponse.RunningStatusDetails:#Server":
+                case "StatusResponse.RunningStatusDetails:#Shared":
                     return new StatusResponse.RunningStatusDetails();
             }
 
-            return new StatusResponse.StatusDetails();
+            return new StatusResponse.UnknownStatusDetails();
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)

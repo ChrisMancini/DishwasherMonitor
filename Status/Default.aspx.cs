@@ -58,7 +58,7 @@ namespace Status
             {
                 var runningStatusDetails = ((StatusResponse.RunningStatusDetails) dets);
                 RunningStartTime = "The dishwasher was started " +
-                                   (DateTime.Now - runningStatusDetails.StartTime).Humanize();
+                                   (DateTime.Now - runningStatusDetails.StartTime).Humanize() + "ago.";
                 RunningDurationLeft = "Estimated time remaining " +
                                       (runningStatusDetails.EstimatedEndTime - DateTime.Now).Humanize();
                 RunningCycleType = "The current run is a " + runningStatusDetails.RunCycle + " cycle";
@@ -121,11 +121,11 @@ namespace Status
 
             switch (typeName)
             {
-                case "StatusResponse.CleanStatusDetails:#Server":
+                case "StatusResponse.CleanStatusDetails:#Shared":
                     return new StatusResponse.CleanStatusDetails();
-                case "StatusResponse.DirtyStatusDetails:#Server":
+                case "StatusResponse.DirtyStatusDetails:#Shared":
                     return new StatusResponse.DirtyStatusDetails();
-                case "StatusResponse.RunningStatusDetails:#Server":
+                case "StatusResponse.RunningStatusDetails:#Shared":
                     return new StatusResponse.RunningStatusDetails();
             }
 
