@@ -99,6 +99,7 @@
     <Compile Include="App.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GpioMonitor.cs" />
     <Compile Include="HttpServer.cs" />
     <Compile Include="MainPage.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -137,6 +138,11 @@
       <Project>{c4a691b9-fad0-43d7-bfc2-708608a7ddd5}</Project>
       <Name>Shared</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <SDKReference Include="WindowsIoT, Version=10.0.10240.0">
+      <Name>Windows IoT Extensions for the UWP</Name>
+    </SDKReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

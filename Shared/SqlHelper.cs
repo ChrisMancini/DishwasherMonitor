@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,8 @@ namespace Shared
     {
         public SqlHelper()
         {
-            _path = Path.Combine(Path.GetTempPath(), "dishwasherdb.db");
+            _path = Path.Combine(Path.GetTempPath(), "dishwasher.db");
+            Debug.WriteLine(_path);
             using (
                 var conn =
                     new SQLiteConnection(new SQLitePlatformWinRT(), _path, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite))
@@ -34,7 +36,7 @@ namespace Shared
                     new SQLiteConnection(new SQLitePlatformWinRT(), _path))
             {
                 var result =
-                    conn.Get<DishwasherInfo>(x => x.Id != null);
+                    conn.Table<DishwasherInfo>().FirstOrDefault(x => x.Id != null);
 
                 if (result != null && result.CurrentStatus != setStatus)
                 {
@@ -82,7 +84,8 @@ namespace Shared
                     IsOpened = isOpened
                 });
 
-                conn.Table<DishwasherTiltEvent>().Delete(x => x.TiltTime < DateTime.Now.Subtract(new TimeSpan(7, 0, 0, 0)));
+                var days = new TimeSpan(7, 0, 0, 0);
+                conn.Table<DishwasherTiltEvent>().Delete(x => x.TiltTime < DateTime.Now.Subtract(days));
 
                 conn.Commit();
             }
@@ -100,7 +103,8 @@ namespace Shared
                     new SQLiteConnection(new SQLitePlatformWinRT(), _path))
             {
                 var now = DateTime.Now;
-                var info = conn.Get<DishwasherInfo>(x => x.Id != null);
+                var info = 
+                    conn.Table<DishwasherInfo>().FirstOrDefault(x => x.Id != null);
                 if (info == null) return;
 
                 conn.Insert(new DishwasherRun
@@ -110,7 +114,8 @@ namespace Shared
                     CycleType = info.CurrentCycle
                 });
 
-                conn.Table<DishwasherRun>().Delete(x => x.StartDateTime < DateTime.Now.Subtract(new TimeSpan(14, 0, 0, 0)));
+                var days = new TimeSpan(14, 0, 0, 0);
+                conn.Table<DishwasherRun>().Delete(x => x.StartDateTime < DateTime.Now.Subtract(days));
 
                 conn.Commit();
             }
@@ -129,7 +134,16 @@ namespace Shared
                 var conn =
                     new SQLiteConnection(new SQLitePlatformWinRT(), _path))
             {
-                return conn.Get<DishwasherInfo>(x => x.Id != null);
+                var firstOrDefault = conn.Table<DishwasherInfo>().FirstOrDefault(x => x.Id != null);
+
+                if (firstOrDefault == null)
+                {
+                    SeedDatabase();
+
+                    return conn.Table<DishwasherInfo>().FirstOrDefault(x => x.Id != null);
+                }
+
+                return firstOrDefault;
             }
         }
 
