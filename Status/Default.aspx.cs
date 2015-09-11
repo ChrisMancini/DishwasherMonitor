@@ -28,6 +28,11 @@ namespace Status
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            StatusRetrieval();
+        }
+
+        private void StatusRetrieval()
+        {
             StatusResponse = GetStatusResponse();
             if (StatusResponse == null)
             {
@@ -38,21 +43,24 @@ namespace Status
 
             if (dets is StatusResponse.DirtyStatusDetails)
             {
-                DirtyDuration = "I have been dirty for " + (DateTime.Now - ((StatusResponse.DirtyStatusDetails) dets).DirtyTime).Humanize();
+                DirtyDuration = "I have been dirty for " +
+                                (DateTime.Now - ((StatusResponse.DirtyStatusDetails) dets).DirtyTime).Humanize();
             }
-            else if(dets is StatusResponse.CleanStatusDetails)
+            else if (dets is StatusResponse.CleanStatusDetails)
             {
                 var cleanStatusDetails = ((StatusResponse.CleanStatusDetails) dets);
                 CleanRunDuration = "The last run took " +
-                                   (cleanStatusDetails.DishwasherRun.EndDateTime - cleanStatusDetails.DishwasherRun.StartDateTime).Humanize();
+                                   (cleanStatusDetails.DishwasherRun.EndDateTime -
+                                    cleanStatusDetails.DishwasherRun.StartDateTime).Humanize();
                 CleanRunCycleType = "The last run was a " + cleanStatusDetails.DishwasherRun.CycleType + " cycle";
             }
             else if (dets is StatusResponse.RunningStatusDetails)
             {
-                var runningStatusDetails = ((StatusResponse.RunningStatusDetails)dets);
+                var runningStatusDetails = ((StatusResponse.RunningStatusDetails) dets);
                 RunningStartTime = "The dishwasher was started " +
                                    (DateTime.Now - runningStatusDetails.StartTime).Humanize();
-                RunningDurationLeft = "Estimated time remaining " + (runningStatusDetails.EstimatedEndTime - DateTime.Now).Humanize();
+                RunningDurationLeft = "Estimated time remaining " +
+                                      (runningStatusDetails.EstimatedEndTime - DateTime.Now).Humanize();
                 RunningCycleType = "The current run is a " + runningStatusDetails.RunCycle + " cycle";
             }
         }

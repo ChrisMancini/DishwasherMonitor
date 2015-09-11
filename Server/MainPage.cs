@@ -37,6 +37,13 @@ namespace Server
                 {
                     server.StartServer();
                 });
+            GpioMonitor monitor = new GpioMonitor();
+            IAsyncAction secondAsyncAction = Windows.System.Threading.ThreadPool.RunAsync(
+                (workItem) =>
+                {
+                    monitor.Start();
+                });
+            //monitor.Start();
         }
     }
 }

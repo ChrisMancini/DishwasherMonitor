@@ -1,24 +1,25 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 using Windows.Devices.Gpio;
 using Windows.Foundation;
 using Windows.System.Threading;
 using Shared;
 
-namespace Monitor
+namespace Server
 {
-    public sealed class GpioMonitorTask : IBackgroundTask
+    public sealed class GpioMonitor
     {
         private const int CleanLightPin = 4;
         private const int TiltSensorPin = 18;
         private const int NormalCycleLight = 22;
         private const int HeavyCycleLight = 23;
         private const int SanitizeCycleLight = 27;
-        
+
         private IDictionary<int, GpioSensor> _gpioSensors;
         private readonly IDictionary<int, RunCycle> _pinToCycleTypeMap = new Dictionary<int, RunCycle>
         {
@@ -27,7 +28,7 @@ namespace Monitor
             {SanitizeCycleLight, RunCycle.Sanitize }
         };
 
-        readonly SqlHelper _halper = new SqlHelper();
+        private SqlHelper _halper;
 
         private class GpioSensor
         {
@@ -56,8 +57,9 @@ namespace Monitor
             }
         }
 
-        public void Run(IBackgroundTaskInstance taskInstance)
+        public void Start()
         {
+            _halper = new SqlHelper();
             _gpioSensors = new Dictionary<int, GpioSensor>
             {
                 { CleanLightPin, new GpioSensor(CleanLightPin, ValueChangedHandler) },
@@ -67,11 +69,11 @@ namespace Monitor
                 { SanitizeCycleLight, new GpioSensor(SanitizeCycleLight, ValueChangedHandler) }
             };
 
-            _halper.StartDishwasherRun(RunCycle.Normal);
+            //_halper.StartDishwasherRun(RunCycle.Normal);
 
             //ValueChangedHandler(_gpioSensors[NormalCycleLight]);
 
-            var deferral = taskInstance.GetDeferral();
+            //var deferral = taskInstance.GetDeferral();
         }
 
         private void ValueChangedHandler(GpioPin sender, GpioPinValueChangedEventArgs args)
@@ -79,7 +81,7 @@ namespace Monitor
             var pinNumber = sender.PinNumber;
             var gpioPinValue = sender.Read();
             Debug.WriteLine("Pin {0} changed to {1}", pinNumber, gpioPinValue);
-            
+
             if (pinNumber == TiltSensorPin)
             {
                 _halper.DishwasherTilt(gpioPinValue == GpioPinValue.High);
@@ -98,9 +100,9 @@ namespace Monitor
                 {
                     _halper.EndDishwasherRun();
                 }
-                else if(tiltSensorValue == GpioPinValue.Low && _pinToCycleTypeMap.ContainsKey(pinNumber))
+                else if (tiltSensorValue == GpioPinValue.Low && _pinToCycleTypeMap.ContainsKey(pinNumber))
                 {
-                   _halper.StartDishwasherRun(_pinToCycleTypeMap[pinNumber]);
+                    _halper.StartDishwasherRun(_pinToCycleTypeMap[pinNumber]);
                 }
             }
         }

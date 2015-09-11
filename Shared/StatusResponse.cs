@@ -15,12 +15,11 @@ namespace Shared
         [KnownType(typeof(RunningStatusDetails))]
         [KnownType(typeof(DirtyStatusDetails))]
         [KnownType(typeof(CleanStatusDetails))]
-        public class StatusDetails
+        public abstract class StatusDetails
         {
             
         }
 
-        [DataContract]
         public class RunningStatusDetails : StatusDetails
         {
             [DataMember]
@@ -31,14 +30,12 @@ namespace Shared
             public RunCycle RunCycle { get; set; }    
         }
 
-        [DataContract]
         public class DirtyStatusDetails : StatusDetails
         {
             [DataMember]
             public DateTime DirtyTime { get; set; }
         }
 
-        [DataContract]
         public class CleanStatusDetails : StatusDetails
         {
             [DataMember]
