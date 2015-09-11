@@ -51,14 +51,12 @@ namespace Shared
                             result.CurrentCycle = runCycle ?? RunCycle.Normal;
                             break;
                     }
-                  
-                   
 
                     result.CurrentStatus = setStatus;
                     conn.Update(result);
                     conn.Commit();
                 }
-                else
+                else if(result == null)
                 {
                     conn.Insert(new DishwasherInfo
                     {
