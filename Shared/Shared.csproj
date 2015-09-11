@@ -117,8 +117,10 @@
     <Compile Include="DishwasherRun.cs" />
     <Compile Include="DishwasherStatus.cs" />
     <Compile Include="DishwasherTiltEvent.cs" />
+    <Compile Include="RunCycle.cs" />
     <Compile Include="SqlHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StatusResponse.cs" />
     <Content Include="Properties\Shared.rd.xml" />
   </ItemGroup>
   <ItemGroup>

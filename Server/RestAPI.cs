@@ -1,12 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
+using Shared;
 
 namespace Server
 {
@@ -21,9 +21,43 @@ namespace Server
         {
             var response = new StatusResponse();
 
+            if (request.StartsWith("/api/seed"))
+            {
+                var sql = new SqlHelper();
+
+                sql.SeedDatabase();
+            }
+
             if (request.StartsWith("/api/status"))
             {
-                response.Status = "Running";
+                var sql = new SqlHelper();
+
+                var info = sql.Get();
+
+                response.Status = info.CurrentStatus.ToString();
+
+                if (info.CurrentStatus == DishwasherStatus.Clean)
+                {
+                    response.Details = new StatusResponse.CleanStatusDetails
+                    {
+                        DishwasherRun = sql.GetDishwasherRun()
+                    };
+                }
+                else if (info.CurrentStatus == DishwasherStatus.Dirty)
+                {
+                    response.Details = new StatusResponse.DirtyStatusDetails
+                    {
+                        DirtyTime = info.DirtyDateTime
+                    };
+                }
+                else if (info.CurrentStatus == DishwasherStatus.Running)
+                {
+                    response.Details = new StatusResponse.RunningStatusDetails
+                    {
+                        StartTime = info.CurrentRunStart,
+                        RunCycle = info.CurrentCycle
+                    };
+                }
             }
             
             // Show the html 
@@ -54,12 +88,5 @@ namespace Server
                 await resp.FlushAsync();
             }
         }
-    }
-
-    [DataContract]
-    public class StatusResponse
-    {
-        [DataMember]
-        public string Status { get; set; }
     }
 }

@@ -1,0 +1,17 @@
+﻿{
+  "intents": [
+    {
+      "intent": "StatusIntent",
+      "slots": []
+    },
+    {
+      "intent": "SpecificStatusQueryIntent",
+      "slots": [
+        {
+          "name": "status",
+          "type": "LITERAL"
+        }
+      ]
+    }
+  ]
+}

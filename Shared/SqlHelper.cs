@@ -125,6 +125,26 @@ namespace Shared
             EditDishwasherInfo(DishwasherStatus.Dirty, null);
         }
 
+        public DishwasherInfo Get()
+        {
+            using (
+                var conn =
+                    new SQLiteConnection(new SQLitePlatformWinRT(), _path))
+            {
+                return conn.Get<DishwasherInfo>(x => x.Id != null);
+            }
+        }
+
+        public DishwasherRun GetDishwasherRun()
+        {
+            using (
+                var conn =
+                    new SQLiteConnection(new SQLitePlatformWinRT(), _path))
+            {
+                return conn.Table<DishwasherRun>().OrderByDescending(r => r.EndDateTime).FirstOrDefault();
+            }
+        }
+
         private static void CreateTableIfNeeded<T>(SQLiteConnection conn) where T :class
         {
             if (!conn.TableMappings.Any(table => typeof (T).IsAssignableFrom(table.MappedType)))
@@ -132,5 +152,30 @@ namespace Shared
                 conn.CreateTable<T>(CreateFlags.AutoIncPK);
             }
         }
-    }
+
+        public void SeedDatabase()
+        {
+            using (
+                var conn =
+                    new SQLiteConnection(new SQLitePlatformWinRT(), _path))
+            {
+                conn.Insert(new DishwasherInfo
+                {
+                    CurrentRunStart = DateTime.MinValue,
+                    CleanDateTime = DateTime.MinValue,
+                    DirtyDateTime = DateTime.Now,
+                    CurrentStatus = DishwasherStatus.Dirty
+                });
+
+                conn.Insert(new DishwasherRun
+                {
+                    CycleType = RunCycle.Heavy,
+                    StartDateTime = DateTime.Now - TimeSpan.FromHours(1),
+                    EndDateTime = DateTime.Now
+                });
+
+                conn.Commit();
+            }
+        }
+        }
 }
